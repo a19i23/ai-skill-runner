@@ -1,0 +1,59 @@
+name: Skill Executor
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: Skill name (travel-search, market-research, etc.)
+        required: true
+        default: travel-search
+      target:
+        description: Main target or destination
+        required: true
+        default: Hawaii
+      start_date:
+        description: Start date (YYYY-MM-DD)
+        required: false
+      end_date:
+        description: End date (YYYY-MM-DD)
+        required: false
+      budget:
+        description: Budget per traveler
+        required: false
+      additional_params:
+        description: JSON string for extra params (e.g. {"origin":"LAX","travelers":"2"})
+        required: false
+jobs:
+  run-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install cursor-agent
+        run: npm install -g @cursor/agent
+
+      - name: Ensure scripts executable
+        run: chmod +x skills/executor.sh skills/travel-search/run.sh
+
+      - name: Run executor
+        env:
+          SKILL: ${{ inputs.skill }}
+          TARGET: ${{ inputs.target }}
+          START_DATE: ${{ inputs.start_date }}
+          END_DATE: ${{ inputs.end_date }}
+          BUDGET: ${{ inputs.budget }}
+          ADDITIONAL_PARAMS: ${{ inputs.additional_params }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          ./skills/executor.sh
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: results/
