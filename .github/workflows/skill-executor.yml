@@ -34,8 +34,10 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install cursor-agent
-        run: npm install -g @cursor/agent
+      - name: Install cursor-agent CLI
+        run: |
+          curl https://cursor.com/install -fsSL | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
 
       - name: Ensure scripts executable
         run: chmod +x skills/executor.sh skills/travel-search/run.sh
