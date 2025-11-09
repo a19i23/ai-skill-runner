@@ -3,6 +3,14 @@
 
 set -e
 
+# Prefer Cursor API key, but fall back to Anthropic key for compatibility
+if [ -n "$CURSOR_API_KEY" ]; then
+  export CURSOR_API_KEY
+elif [ -n "$ANTHROPIC_API_KEY" ] && [ -z "$CURSOR_API_KEY" ]; then
+  echo "ℹ️  CURSOR_API_KEY not provided; falling back to ANTHROPIC_API_KEY for cursor-agent"
+  export CURSOR_API_KEY="$ANTHROPIC_API_KEY"
+fi
+
 # Create results directory
 mkdir -p results
 
